@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'REPLACE_WITH_YOUR_GIT_REPO_URL'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh 'docker build -t my-wordpress-app:latest docker/'
+                }
+            }
+        }
+
+        stage('Unit Tests / Lint') {
+            steps {
+                echo "Run tests or code linters here (if any)."
+            }
+        }
+
+        stage('Push to Registry') {
+            steps {
+                script {
+                    // Make sure you're logged in to your Docker registry or use Jenkins credentials
+                    // e.g., sh 'docker login -u USER -p PASS'
+                    sh 'docker tag my-wordpress-app:latest REPLACE_WITH_YOUR_REGISTRY/my-wordpress-app:latest'
+                    sh 'docker push REPLACE_WITH_YOUR_REGISTRY/my-wordpress-app:latest'
+                }
+            }
+        }
+
+        stage('Deploy to K8s') {
+            steps {
+                script {
+                    // You might do something like:
+                    // sh 'kubectl apply -f k8s/'
+                    echo "Deployment to Kubernetes or any environment can be placed here."
+                }
+            }
+        }
+    }
+    post {
+        always {
+            echo "Cleaning up workspace..."
+        }
+    }
+}
