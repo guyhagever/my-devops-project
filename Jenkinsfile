@@ -1,10 +1,7 @@
 pipeline {
     agent any
-
     environment {
-        // Docker image reference
         DOCKER_IMAGE = "guyhagever/my-devops-project:latest"
-        // The name for the k8s Secret we will create
         K8S_SECRET_NAME = "wordpress-secrets"
     }
 
@@ -12,7 +9,6 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                // Checkout code
                 git branch: 'master', url: 'https://github.com/guyhagever/my-devops-project.git'
             }
         }
@@ -76,8 +72,6 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    // This uses a Jenkins credential with ID `dockerhub-credentials`
-                    // that stores your DockerHub (or other registry) username/password
                     withCredentials([usernamePassword(
                         credentialsId: 'dockerhub-credentials',
                         usernameVariable: 'DOCKER_USER',
@@ -90,17 +84,9 @@ pipeline {
             }
         }
 
-        // ---------------------------------------------------------------------
-        // Create/Update Kubernetes Secret
-        // ---------------------------------------------------------------------
         stage('Create/Update K8s Secret') {
             steps {
                 script {
-                    // We assume you have `kubectl` installed on the Jenkins agent
-                    // and that your agent is already authenticated to the cluster (kubeconfig in place).
-                    // We will create a K8s secret with base64-encoded credentials from
-                    // the environment variables we stored after "Retrieve Secrets" stage.
-
                     def b64User = sh(
                         script: "echo -n \"${env.WORDPRESS_DB_USER}\" | base64",
                         returnStdout: true
@@ -111,8 +97,6 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
-                    // We'll apply a Secret definition to K8s.
-                    // The 'replace' strategy ensures it updates if it already exists.
                     sh """
                     cat <<EOF > /tmp/wordpress-secret.yaml
                     apiVersion: v1
@@ -131,48 +115,24 @@ pipeline {
             }
         }
 
-        // ---------------------------------------------------------------------
-        // Deploy to Kubernetes
-        // ---------------------------------------------------------------------
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    /**
-                     * In your k8s/wordpress-deployment.yaml, you can reference the above secret like this:
-                     *
-                     * env:
-                     *   - name: WORDPRESS_DB_USER
-                     *     valueFrom:
-                     *       secretKeyRef:
-                     *         name: wordpress-secrets
-                     *         key: db-user
-                     *   - name: WORDPRESS_DB_PASSWORD
-                     *     valueFrom:
-                     *       secretKeyRef:
-                     *         name: wordpress-secrets
-                     *         key: db-pass
-                     *
-                     * That way, your DB username/password are never hardcoded in the YAML or in Git.
-                     */
 
                     sh 'kubectl apply -f k8s/'
                 }
             }
         }
 
-        // ---------------------------------------------------------------------
-        // Post-Deployment Check
-        // ---------------------------------------------------------------------
         stage('Post-Deployment Check') {
             steps {
                 script {
                     echo "Performing post-deployment checks..."
-                    // Example: Check if the WordPress service is responding
-                    // sh "curl -I http://my-wordpress-service-url"
+                    sh "curl -I http://my-wordpress-service-url"
                 }
             }
         }
-    } // end stages
+    } 
 
     post {
         always {
