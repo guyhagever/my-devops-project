@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Docker image reference
-        DOCKER_IMAGE = "my-registry/my-devops-project:latest"
+        DOCKER_IMAGE = "guyhagever/my-devops-project:latest"
         // The name for the k8s Secret we will create
         K8S_SECRET_NAME = "wordpress-secrets"
     }
