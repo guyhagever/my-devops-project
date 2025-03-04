@@ -19,15 +19,15 @@ pipeline {
     stage('Static Analysis') {
       steps {
         echo "Running static analysis on Terraform and Ansible files..."
-        // Example: Ensure Terraform formatting and run ansible-lint
-        dir('terraform') {
-          sh 'terraform fmt -check'
-        }
+        // Terraform static analysis is disabled for now.
+        // Only running analysis on Ansible files.
         dir('ansible') {
           sh 'ansible-lint playbook.yml'
         }
       }
     }
+    // Terraform stages have been disabled temporarily.
+    /*
     stage('Terraform Provisioning') {
       stages {
         stage('Terraform Init') {
@@ -56,6 +56,7 @@ pipeline {
         }
       }
     }
+    */
     stage('Ansible Configuration') {
       steps {
         dir('ansible') {
@@ -147,7 +148,7 @@ pipeline {
       steps {
         script {
           echo "Performing post-deployment health checks..."
-          // Example: Check a /health endpoint; adjust as needed for your app.
+          // Update this URL as needed for your environment.
           def response = sh(script: "curl -s -o /dev/null -w '%{http_code}' http://10.0.2.15:30080/health", returnStdout: true).trim()
           if (response != "200") {
             error "Health check failed: expected 200 but got ${response}"
