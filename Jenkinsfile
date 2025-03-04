@@ -5,7 +5,6 @@ pipeline {
     K8S_SECRET_NAME = "wordpress-secrets"
   }
   options {
-    // Fail fast if any stage exceeds its limits.
     skipDefaultCheckout(true)
     timeout(time: 1, unit: 'HOURS')
   }
@@ -19,10 +18,9 @@ pipeline {
     stage('Static Analysis') {
       steps {
         echo "Running static analysis on Terraform and Ansible files..."
-        // Terraform static analysis is disabled for now.
-        // Running ansible-lint with --exit-zero to ignore lint failures.
+        // Terraform analysis is disabled; run ansible-lint and ignore its exit code.
         dir('ansible') {
-          sh 'ansible-lint --exit-zero playbook.yml'
+          sh 'ansible-lint playbook.yml || true'
         }
       }
     }
@@ -148,7 +146,6 @@ pipeline {
       steps {
         script {
           echo "Performing post-deployment health checks..."
-          // Update this URL as needed for your environment.
           def response = sh(script: "curl -s -o /dev/null -w '%{http_code}' http://10.0.2.15:30080/health", returnStdout: true).trim()
           if (response != "200") {
             error "Health check failed: expected 200 but got ${response}"
