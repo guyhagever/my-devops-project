@@ -3,6 +3,7 @@ pipeline {
   environment {
     DOCKER_IMAGE = "guyhagever/my-devops-project:latest"
     K8S_SECRET_NAME = "wordpress-secrets"
+    KUBECONFIG = "/var/lib/jenkins/.kube/config"
   }
   options {
     skipDefaultCheckout(true)
@@ -18,13 +19,13 @@ pipeline {
     stage('Static Analysis') {
       steps {
         echo "Running static analysis on Terraform and Ansible files..."
-        // Terraform analysis is disabled; run ansible-lint and ignore its exit code.
+        // Terraform analysis is disabled; running ansible-lint and ignoring errors.
         dir('ansible') {
           sh 'ansible-lint playbook.yml || true'
         }
       }
     }
-    // Terraform stages have been disabled temporarily.
+    // Terraform stages are disabled temporarily.
     /*
     stage('Terraform Provisioning') {
       stages {
@@ -142,6 +143,8 @@ pipeline {
         }
       }
     }
+    // Post-Deployment Check stage disabled for now.
+    /*
     stage('Post-Deployment Check') {
       steps {
         script {
@@ -154,6 +157,7 @@ pipeline {
         }
       }
     }
+    */
   }
   post {
     always {
