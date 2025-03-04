@@ -128,7 +128,7 @@ pipeline {
             steps {
                 script {
                     echo "Performing post-deployment checks..."
-                    sh "curl -I http://my-wordpress-service-url"
+                    sh "curl -I http://http://10.0.2.15:30080"
                 }
             }
         }
