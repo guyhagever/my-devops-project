@@ -1,18 +1,18 @@
 # Terraform configuration example
 terraform {
   required_version = ">= 1.0.0"
+
   required_providers {
     # Add your providers here, for example:
     # aws = {
-    #   source = "hashicorp/aws"
+    #   source  = "hashicorp/aws"
     #   version = "~> 3.0"
     # }
   }
-}
 
-# Example: Using local backend (update as needed)
-backend "local" {
-  path = "./terraform.tfstate"
+  backend "local" {
+    path = "./terraform.tfstate"
+  }
 }
 
 provider "local" {
