@@ -1,4 +1,3 @@
-# Example Grafana datasource configuration
 apiVersion: 1
 
 datasources:
