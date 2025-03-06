@@ -19,43 +19,11 @@ pipeline {
     stage('Static Analysis') {
       steps {
         echo "Running static analysis on Terraform and Ansible files..."
-        // Terraform analysis is disabled; running ansible-lint and ignoring errors.
         dir('ansible') {
           sh 'ansible-lint playbook.yml || true'
         }
       }
     }
-    // Terraform stages are disabled temporarily.
-    /*
-    stage('Terraform Provisioning') {
-      stages {
-        stage('Terraform Init') {
-          steps {
-            dir('terraform') {
-              echo "Initializing Terraform..."
-              sh 'terraform init'
-            }
-          }
-        }
-        stage('Terraform Plan') {
-          steps {
-            dir('terraform') {
-              echo "Planning Terraform deployment..."
-              sh 'terraform plan'
-            }
-          }
-        }
-        stage('Terraform Apply') {
-          steps {
-            dir('terraform') {
-              echo "Applying Terraform configuration..."
-              sh 'terraform apply -auto-approve'
-            }
-          }
-        }
-      }
-    }
-    */
     stage('Ansible Configuration') {
       steps {
         dir('ansible') {
@@ -143,21 +111,7 @@ pipeline {
         }
       }
     }
-    // Post-Deployment Check stage disabled for now.
-    /*
-    stage('Post-Deployment Check') {
-      steps {
-        script {
-          echo "Performing post-deployment health checks..."
-          def response = sh(script: "curl -s -o /dev/null -w '%{http_code}' http://10.0.2.15:30080/health", returnStdout: true).trim()
-          if (response != "200") {
-            error "Health check failed: expected 200 but got ${response}"
-          }
-          echo "Health check passed with status code ${response}"
-        }
-      }
-    }
-    */
+   
   }
   post {
     always {
